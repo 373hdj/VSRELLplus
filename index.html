@@ -1,520 +1,1372 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <!-- Primary Meta Tags -->
-  <!-- TODO: Replace with your paper title and author names -->
-  <meta name="title" content="PAPER_TITLE - AUTHOR_NAMES">
-  <!-- TODO: Write a compelling 150-160 character description of your research -->
-  <meta name="description" content="BRIEF_DESCRIPTION_OF_YOUR_RESEARCH_CONTRIBUTION_AND_FINDINGS">
-  <!-- TODO: Add 5-10 relevant keywords for your research area -->
-  <meta name="keywords" content="KEYWORD1, KEYWORD2, KEYWORD3, machine learning, computer vision, AI">
-  <!-- TODO: List all authors -->
-  <meta name="author" content="FIRST_AUTHOR_NAME, SECOND_AUTHOR_NAME">
-  <meta name="robots" content="index, follow">
-  <meta name="language" content="English">
-  
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="article">
-  <!-- TODO: Replace with your institution or lab name -->
-  <meta property="og:site_name" content="INSTITUTION_OR_LAB_NAME">
-  <!-- TODO: Same as paper title above -->
-  <meta property="og:title" content="PAPER_TITLE">
-  <!-- TODO: Same as description above -->
-  <meta property="og:description" content="BRIEF_DESCRIPTION_OF_YOUR_RESEARCH_CONTRIBUTION_AND_FINDINGS">
-  <!-- TODO: Replace with your actual website URL -->
-  <meta property="og:url" content="https://YOUR_DOMAIN.com/YOUR_PROJECT_PAGE">
-  <!-- TODO: Create a 1200x630px preview image and update path -->
-  <meta property="og:image" content="https://YOUR_DOMAIN.com/static/images/social_preview.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="PAPER_TITLE - Research Preview">
-  <meta property="article:published_time" content="2024-01-01T00:00:00.000Z">
-  <meta property="article:author" content="FIRST_AUTHOR_NAME">
-  <meta property="article:section" content="Research">
-  <meta property="article:tag" content="KEYWORD1">
-  <meta property="article:tag" content="KEYWORD2">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VSRELL++ · Improving Video Super-Resolution and Enhancement in Low-Light Environment with Self-Distillation Consistency</title>
+<meta name="description" content="VSRELL++: An Improving Framework for Video Super-Resolution and Enhancement in Low-Light Environment. CVPR 2026 · Denver.">
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <!-- TODO: Replace with your lab/institution Twitter handle -->
-  <meta name="twitter:site" content="@YOUR_TWITTER_HANDLE">
-  <!-- TODO: Replace with first author's Twitter handle -->
-  <meta name="twitter:creator" content="@AUTHOR_TWITTER_HANDLE">
-  <!-- TODO: Same as paper title above -->
-  <meta name="twitter:title" content="PAPER_TITLE">
-  <!-- TODO: Same as description above -->
-  <meta name="twitter:description" content="BRIEF_DESCRIPTION_OF_YOUR_RESEARCH_CONTRIBUTION_AND_FINDINGS">
-  <!-- TODO: Same as social preview image above -->
-  <meta name="twitter:image" content="https://YOUR_DOMAIN.com/static/images/social_preview.png">
-  <meta name="twitter:image:alt" content="PAPER_TITLE - Research Preview">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Academic/Research Specific -->
-  <meta name="citation_title" content="PAPER_TITLE">
-  <meta name="citation_author" content="FIRST_AUTHOR_LAST, FIRST_AUTHOR_FIRST">
-  <meta name="citation_author" content="SECOND_AUTHOR_LAST, SECOND_AUTHOR_FIRST">
-  <meta name="citation_publication_date" content="2024">
-  <meta name="citation_conference_title" content="CONFERENCE_NAME">
-  <meta name="citation_pdf_url" content="https://YOUR_DOMAIN.com/static/pdfs/paper.pdf">
-  
-  <!-- Additional SEO -->
-  <meta name="theme-color" content="#2563eb">
-  <meta name="msapplication-TileColor" content="#2563eb">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  
-  <!-- Preconnect for performance -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://ajax.googleapis.com">
-  <link rel="preconnect" href="https://documentcloud.adobe.com">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+/* ============================================================
+   0. TOKENS
+   ============================================================ */
+:root{
+  --bg:#030409;
+  --fg:#e9edf7;
+  --muted:#8d97ae;
+  --line:rgba(255,255,255,.09);
+  --panel:rgba(255,255,255,.035);
+  --panel-2:rgba(255,255,255,.07);
+  --cyan:#5ee7ff;
+  --violet:#a78bfa;
+  --rose:#ff7ab6;
+  --gold:#ffd479;
+  --font-head:'Space Grotesk','Inter',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-drama:cubic-bezier(.2,.9,.2,1);
+}
 
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font-family:var(--font-body);line-height:1.65;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:-3;pointer-events:none;
+  background:
+    radial-gradient(60% 45% at 12% 0%, rgba(94,231,255,.09), transparent 62%),
+    radial-gradient(55% 40% at 88% 6%, rgba(167,139,250,.10), transparent 62%),
+    radial-gradient(70% 60% at 50% 105%, rgba(255,122,182,.07), transparent 70%);
+}
+img,video{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+::selection{background:rgba(94,231,255,.3)}
 
-  <!-- TODO: Replace with your paper title and authors -->
-  <title>PAPER_TITLE - AUTHOR_NAMES | Academic Research</title>
-  
-  <!-- Favicon and App Icons -->
-  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
-  <link rel="apple-touch-icon" href="static/images/favicon.ico">
-  
-  <!-- Critical CSS - Load synchronously -->
-  <link rel="stylesheet" href="static/css/bulma.min.css">
-  <link rel="stylesheet" href="static/css/index.css">
-  
-  <!-- Non-critical CSS - Load asynchronously -->
-  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  
-  <!-- Fallback for browsers that don't support preload -->
-  <noscript>
-    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
-    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
-    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  </noscript>
-  
-  <!-- Fonts - Optimized loading -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Defer non-critical JavaScript -->
-  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script defer src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
-  <script defer src="static/js/fontawesome.all.min.js"></script>
-  <script defer src="static/js/bulma-carousel.min.js"></script>
-  <script defer src="static/js/bulma-slider.min.js"></script>
-  <script defer src="static/js/index.js"></script>
-  
-  <!-- Structured Data for Academic Papers -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "ScholarlyArticle",
-    "headline": "PAPER_TITLE",
-    "description": "BRIEF_DESCRIPTION_OF_YOUR_RESEARCH_CONTRIBUTION_AND_FINDINGS",
-    "author": [
-      {
-        "@type": "Person",
-        "name": "FIRST_AUTHOR_NAME",
-        "affiliation": {
-          "@type": "Organization",
-          "name": "INSTITUTION_NAME"
-        }
-      },
-      {
-        "@type": "Person",
-        "name": "SECOND_AUTHOR_NAME",
-        "affiliation": {
-          "@type": "Organization",
-          "name": "INSTITUTION_NAME"
-        }
-      }
-    ],
-    "datePublished": "2024-01-01",
-    "publisher": {
-      "@type": "Organization",
-      "name": "CONFERENCE_OR_JOURNAL_NAME"
-    },
-    "url": "https://YOUR_DOMAIN.com/YOUR_PROJECT_PAGE",
-    "image": "https://YOUR_DOMAIN.com/static/images/social_preview.png",
-    "keywords": ["KEYWORD1", "KEYWORD2", "KEYWORD3", "machine learning", "computer vision"],
-    "abstract": "FULL_ABSTRACT_TEXT_HERE",
-    "citation": "BIBTEX_CITATION_HERE",
-    "isAccessibleForFree": true,
-    "license": "https://creativecommons.org/licenses/by/4.0/",
-    "mainEntity": {
-      "@type": "WebPage",
-      "@id": "https://YOUR_DOMAIN.com/YOUR_PROJECT_PAGE"
-    },
-    "about": [
-      {
-        "@type": "Thing",
-        "name": "RESEARCH_AREA_1"
-      },
-      {
-        "@type": "Thing", 
-        "name": "RESEARCH_AREA_2"
-      }
-    ]
+/* ============================================================
+   1. AMBIENT LAYERS
+   ============================================================ */
+.grain{
+  position:fixed;inset:-120%;z-index:9998;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grainShift 6s steps(8) infinite;
+}
+@keyframes grainShift{
+  0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}
+  40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-2%)}
+  80%{transform:translate(3%,1%)}100%{transform:translate(0,0)}
+}
+
+/* 电影暗角 */
+.vignette{
+  position:fixed;inset:0;pointer-events:none;z-index:9996;
+  background:radial-gradient(ellipse 100% 78% at 50% 50%, transparent 45%, rgba(0,0,0,.55) 100%);
+}
+
+/* 粒子星场 */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+#particles i{
+  position:absolute;background:#fff;border-radius:50%;
+  box-shadow:0 0 10px rgba(94,231,255,.9), 0 0 20px rgba(167,139,250,.4);
+  animation:floatUp linear infinite;
+  will-change:transform,opacity;
+}
+@keyframes floatUp{
+  0%{transform:translate3d(0,0,0);opacity:0}
+  10%{opacity:.65}
+  90%{opacity:.65}
+  100%{transform:translate3d(0,-100vh,0);opacity:0}
+}
+
+/* 光标光晕 */
+.cursor-glow{
+  position:fixed;top:0;left:0;width:560px;height:560px;margin:-280px 0 0 -280px;
+  border-radius:50%;pointer-events:none;z-index:9997;opacity:0;
+  background:radial-gradient(circle, rgba(94,231,255,.10) 0%, rgba(167,139,250,.06) 40%, transparent 70%);
+  transition:opacity .6s ease;will-change:transform;
+}
+
+/* 阅读进度 */
+.progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:9999;pointer-events:none}
+.progress i{
+  display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:0 50%;
+  background:linear-gradient(90deg,var(--cyan),var(--violet) 55%,var(--rose));
+  box-shadow:0 0 18px rgba(94,231,255,.85);
+}
+
+/* ============================================================
+   2. CURTAIN 序幕
+   ============================================================ */
+.curtain{
+  position:fixed;inset:0;z-index:10000;
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity 1s ease, visibility 1s ease;
+}
+.curtain.gone{opacity:0;visibility:hidden;pointer-events:none}
+.curtain::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 50%, rgba(94,231,255,.10), transparent 55%);
+  animation:curtainGlow 2.4s ease-in-out infinite;
+}
+@keyframes curtainGlow{0%,100%{opacity:.5}50%{opacity:1}}
+.curtain-inner{position:relative;text-align:center}
+.curtain-logo{
+  display:block;
+  font-family:var(--font-head);font-weight:700;
+  font-size:clamp(2.2rem,7vw,4.6rem);
+  letter-spacing:.5em;
+  color:#fff;
+  opacity:0;
+  text-shadow:0 0 40px rgba(94,231,255,.5), 0 0 90px rgba(167,139,250,.3);
+  animation:curtainLogo 1.3s var(--ease-drama) .12s forwards;
+}
+@keyframes curtainLogo{
+  0%{opacity:0;filter:blur(34px);transform:scale(1.18);letter-spacing:.9em}
+  60%{opacity:.9;filter:blur(4px)}
+  100%{opacity:1;filter:blur(0);transform:scale(1);letter-spacing:.5em}
+}
+.curtain-line{
+  display:block;width:0;height:1px;margin:22px auto 0;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);
+  box-shadow:0 0 22px rgba(94,231,255,.9);
+  animation:curtainLine 1.1s var(--ease) .85s forwards;
+}
+@keyframes curtainLine{to{width:min(360px,50vw)}}
+.curtain-sub{
+  display:block;margin-top:18px;
+  font-family:var(--font-head);font-size:.72rem;letter-spacing:.55em;
+  text-transform:uppercase;color:#8da0c4;
+  opacity:0;
+  animation:curtainSub 1s ease 1.15s forwards;
+}
+@keyframes curtainSub{to{opacity:1}}
+
+/* ============================================================
+   3. NAV
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px clamp(18px,5vw,64px);
+  border-bottom:1px solid transparent;
+  transition:padding .55s var(--ease), background .55s ease,
+             backdrop-filter .55s ease, border-color .55s ease;
+}
+.nav.scrolled{
+  padding:12px clamp(18px,5vw,64px);
+  background:rgba(5,7,13,.75);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  backdrop-filter:blur(22px) saturate(160%);
+  border-bottom-color:var(--line);
+}
+.nav-brand{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font-head);font-weight:700;font-size:.82rem;
+  letter-spacing:.22em;text-transform:uppercase;
+}
+.brand-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 16px var(--cyan);animation:pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
+.nav-links{display:flex;align-items:center;gap:clamp(10px,2vw,28px);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase}
+.nav-links a{color:var(--muted);position:relative;padding:6px 2px;transition:color .35s ease}
+.nav-links a::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,var(--cyan),var(--violet));
+  transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease);
+}
+.nav-links a:hover,.nav-links a.active{color:var(--fg)}
+.nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1)}
+.nav-cta{
+  border:1px solid var(--line);border-radius:999px;padding:8px 20px;
+  background:var(--panel);color:var(--fg) !important;
+  transition:background .4s ease, box-shadow .4s ease, border-color .4s ease, transform .4s var(--ease);
+}
+.nav-cta::after{display:none}
+.nav-cta:hover{
+  background:var(--panel-2);border-color:rgba(94,231,255,.45);
+  box-shadow:0 0 28px -6px rgba(94,231,255,.7);transform:translateY(-1px);
+}
+@media (max-width:720px){.nav-links a:not(.nav-cta){display:none}}
+
+/* ============================================================
+   4. HERO
+   ============================================================ */
+.hero{
+  position:relative;min-height:100svh;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:150px clamp(18px,5vw,48px) 110px;
+  overflow:hidden;isolation:isolate;
+}
+.hero::before{
+  content:'';position:absolute;inset:-25%;z-index:-1;
+  background:
+    radial-gradient(38% 42% at 22% 28%, rgba(94,231,255,.24), transparent 62%),
+    radial-gradient(36% 38% at 78% 22%, rgba(167,139,250,.24), transparent 62%),
+    radial-gradient(46% 46% at 58% 78%, rgba(255,122,182,.14), transparent 65%);
+  filter:blur(50px);
+  animation:aurora 24s ease-in-out infinite alternate;
+}
+@keyframes aurora{
+  0%{transform:translate3d(-2%,-1%,0) scale(1.05) rotate(0deg)}
+  50%{transform:translate3d(2%,2%,0) scale(1.15) rotate(4deg)}
+  100%{transform:translate3d(-1%,3%,0) scale(1.08) rotate(-3deg)}
+}
+.hero::after{
+  content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:68px 68px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 42%, #000 8%, transparent 78%);
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 42%, #000 8%, transparent 78%);
+}
+/* 扫光 */
+.hero-sweep{
+  position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(105deg,
+    transparent 42%,
+    rgba(94,231,255,.07) 47%,
+    rgba(94,231,255,.20) 50%,
+    rgba(167,139,250,.10) 53%,
+    transparent 60%);
+  transform:translateX(-100%);
+  animation:sweep 9s ease-in-out infinite;
+  mix-blend-mode:screen;
+}
+@keyframes sweep{
+  0%,66%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+.hero-inner{position:relative;z-index:2;width:100%;max-width:1120px;text-align:center;will-change:transform,opacity}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;margin:0 0 30px;
+  padding:8px 20px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.03);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);
+  opacity:0;transform:translateY(-10px);
+}
+body.revealed .hero-eyebrow{
+  animation:eyebrowIn 1s var(--ease) .05s forwards;
+}
+@keyframes eyebrowIn{to{opacity:1;transform:none}}
+.hero-eyebrow b{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+
+/* 逐字标题 */
+.hero-title{
+  margin:0 0 34px;font-family:var(--font-head);font-weight:700;
+  font-size:clamp(1.85rem,4.7vw,3.9rem);
+  line-height:1.08;letter-spacing:-.022em;
+  color:#f3f7ff;perspective:900px;
+}
+.hero-title .c{
+  display:inline-block;opacity:0;
+  transform:translateY(.6em) rotateX(-72deg) scale(.86);
+  filter:blur(18px);
+  transform-origin:50% 100%;
+  will-change:transform,opacity,filter;
+}
+.hero-title .sp{display:inline-block;width:.28em}
+body.revealed .hero-title .c{
+  animation:
+    charIn 1.4s var(--ease-drama) calc(var(--i) * .022s) forwards,
+    charPulse 5.5s ease-in-out calc(var(--i) * .022s + 1.6s) infinite;
+}
+@keyframes charIn{
+  0%{opacity:0;transform:translateY(.6em) rotateX(-72deg) scale(.86);filter:blur(18px)}
+  60%{opacity:.92;filter:blur(4px)}
+  100%{opacity:1;transform:none;filter:blur(0)}
+}
+@keyframes charPulse{
+  0%,100%{text-shadow:0 0 22px rgba(94,231,255,.20), 0 0 48px rgba(94,231,255,.08)}
+  50%{text-shadow:0 0 34px rgba(94,231,255,.45), 0 0 80px rgba(167,139,250,.22)}
+}
+
+.authors{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:4px 20px;
+  font-size:.94rem;color:var(--muted);margin-bottom:14px;
+  opacity:0;
+}
+body.revealed .authors{animation:eyebrowIn 1s var(--ease) .55s forwards}
+.authors a{color:#c9d4ea;transition:color .35s ease, text-shadow .35s ease}
+.authors a:hover{color:var(--cyan);text-shadow:0 0 18px rgba(94,231,255,.7)}
+.affiliation{
+  font-size:.86rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;
+  opacity:0;
+}
+body.revealed .affiliation{animation:eyebrowIn 1s var(--ease) .7s forwards}
+
+.links{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:42px;
+  opacity:0;transform:translateY(14px);
+}
+body.revealed .links{animation:eyebrowIn 1.1s var(--ease) .85s forwards}
+.btn{
+  position:relative;overflow:hidden;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 28px;border-radius:999px;
+  font-size:.83rem;font-weight:500;letter-spacing:.04em;color:var(--fg);
+  background:rgba(255,255,255,.045);border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  transition:transform .5s var(--ease), box-shadow .5s ease,
+             border-color .5s ease, background .5s ease;
+}
+.btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,.20) 50%,transparent 80%);
+  transform:translateX(-130%);transition:transform .9s var(--ease);
+}
+.btn:hover::before{transform:translateX(130%)}
+.btn:hover{
+  transform:translateY(-3px);
+  border-color:rgba(94,231,255,.55);
+  background:rgba(94,231,255,.08);
+  box-shadow:0 18px 46px -18px rgba(94,231,255,.85);
+}
+.btn svg{opacity:.9}
+
+.scroll-hint{
+  position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  font-size:.6rem;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);
+  opacity:0;
+}
+body.revealed .scroll-hint{animation:fadeIn 1.4s var(--ease) 1.5s forwards}
+.scroll-hint i{
+  display:block;width:1px;height:48px;overflow:hidden;position:relative;
+  background:rgba(255,255,255,.12);
+}
+.scroll-hint i::after{
+  content:'';position:absolute;left:0;width:100%;height:45%;
+  background:linear-gradient(180deg,transparent,var(--cyan));
+  animation:scan 2.4s ease-in-out infinite;
+}
+@keyframes scan{0%{top:-50%}100%{top:110%}}
+@keyframes fadeIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ============================================================
+   5. MARQUEE
+   ============================================================ */
+.marquee{
+  position:relative;overflow:hidden;padding:30px 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:linear-gradient(90deg,transparent,rgba(94,231,255,.03) 50%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+}
+.marquee-track{
+  display:flex;gap:64px;width:max-content;
+  animation:marquee 58s linear infinite;will-change:transform;
+}
+.marquee-item{
+  font-family:var(--font-head);font-size:.8rem;letter-spacing:.4em;
+  text-transform:uppercase;color:rgba(141,151,174,.55);white-space:nowrap;
+}
+.marquee-item em{font-style:normal;color:rgba(94,231,255,.72)}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ============================================================
+   6. SECTION SHELL
+   ============================================================ */
+.section{
+  position:relative;z-index:1;
+  padding:clamp(90px,11vw,170px) clamp(18px,5vw,64px);
+}
+.container{max-width:1180px;margin:0 auto}
+.container-wide{max-width:1480px;margin:0 auto}
+
+.sec-head{text-align:center;margin-bottom:clamp(44px,6vw,76px)}
+.sec-num{
+  display:block;
+  font-family:var(--font-head);font-size:.72rem;font-weight:600;
+  letter-spacing:.62em;color:var(--cyan);
+  margin-bottom:18px;
+  text-shadow:0 0 24px rgba(94,231,255,.65);
+  opacity:0;transform:translateY(12px);
+  transition:opacity .9s ease .1s, transform .9s var(--ease) .1s;
+}
+.reveal.in .sec-num{opacity:1;transform:none}
+.sec-title{
+  margin:0 0 14px;font-family:var(--font-head);font-weight:700;
+  font-size:clamp(1.6rem,3.4vw,2.6rem);letter-spacing:-.015em;
+}
+.sec-sub{max-width:760px;margin:0 auto;color:var(--muted);font-size:.94rem}
+.sec-line{
+  width:80px;height:2px;margin:22px auto 0;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);
+  box-shadow:0 0 26px rgba(94,231,255,.55);
+  transform:scaleX(0);transform-origin:center;
+  transition:transform 1.2s var(--ease) .2s;
+}
+.reveal.in .sec-line{transform:scaleX(1)}
+
+.reveal{
+  opacity:0;transform:translateY(48px) rotateX(6deg);filter:blur(9px);
+  transition:opacity 1.15s var(--ease), transform 1.15s var(--ease), filter 1.15s var(--ease);
+}
+.reveal.in{opacity:1;transform:none;filter:blur(0)}
+
+/* ============================================================
+   7. VIDEO CARDS
+   ============================================================ */
+.video-grid{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.video-grid.cols-4{grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
+.video-grid + .video-grid{margin-top:22px}
+
+.video-card{
+  position:relative;overflow:hidden;border-radius:18px;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));
+  transition:transform .7s var(--ease), box-shadow .7s ease, border-color .7s ease;
+  will-change:transform;
+}
+.video-card::after{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:0;
+  transition:opacity .55s ease;
+  background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),
+             rgba(94,231,255,.18), transparent 55%);
+}
+.video-card:hover{
+  transform:translateY(-10px);
+  border-color:rgba(94,231,255,.45);
+  box-shadow:0 36px 78px -34px rgba(0,0,0,.95), 0 0 52px -22px rgba(94,231,255,.7);
+}
+.video-card:hover::after{opacity:1}
+.video-card video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000}
+.video-cap{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:13px 17px;border-top:1px solid var(--line);
+}
+.video-label{font-family:var(--font-head);font-size:.8rem;letter-spacing:.1em;color:#dce5f6}
+.video-res{font-size:.7rem;letter-spacing:.06em;color:var(--muted)}
+.video-card.is-gt{border-color:rgba(255,212,121,.3)}
+.video-card.is-gt .video-label{color:var(--gold)}
+.video-card.is-gt:hover{border-color:rgba(255,212,121,.65);box-shadow:0 36px 78px -34px #000, 0 0 52px -22px rgba(255,212,121,.6)}
+
+.hint{
+  margin:48px auto 0;text-align:center;color:var(--muted);
+  font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;
+}
+.hint span{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:9px 22px;border:1px solid var(--line);border-radius:999px;
+  background:var(--panel);
+  animation:floaty 3.6s ease-in-out infinite;
+}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* ============================================================
+   8. ROTATE COMPARE
+   ============================================================ */
+.rotate-grid{
+  display:grid;gap:24px;margin-top:56px;
+  grid-template-columns:repeat(3,1fr);
+}
+.rotate-compare{
+  position:relative;aspect-ratio:16/10;border-radius:20px;overflow:hidden;
+  border:1px solid var(--line);background:#000;cursor:ew-resize;
+  box-shadow:0 34px 84px -46px #000;touch-action:pan-y;
+  transition:border-color .6s ease, box-shadow .6s ease, transform .6s var(--ease);
+}
+.rotate-compare:hover{
+  border-color:rgba(94,231,255,.48);
+  box-shadow:0 46px 100px -46px #000, 0 0 62px -22px rgba(94,231,255,.55);
+}
+.rotate-stage{position:absolute;inset:0}
+.rotate-layer{position:absolute;inset:0}
+.rotate-img{width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
+.rotate-shade{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.28) 0%,transparent 32%,transparent 68%,rgba(0,0,0,.42) 100%);
+}
+.rotate-line{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.rotate-line-segment{stroke:rgba(255,255,255,.98);stroke-width:2;filter:drop-shadow(0 0 12px rgba(94,231,255,.98))}
+.rotate-line-outer{fill:rgba(6,10,18,.55);stroke:rgba(255,255,255,.98);stroke-width:2;filter:drop-shadow(0 0 14px rgba(94,231,255,.95))}
+.rotate-line-inner{fill:#fff;filter:drop-shadow(0 0 10px rgba(94,231,255,1))}
+
+.rotate-badge{
+  position:absolute;bottom:14px;z-index:3;pointer-events:none;
+  padding:6px 14px;border-radius:999px;
+  font-family:var(--font-head);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
+  background:rgba(5,8,15,.62);border:1px solid var(--line);color:#cbd6ea;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+.rotate-badge-left{left:14px}
+.rotate-badge-right{right:14px;border-color:rgba(94,231,255,.5);color:#d3f4ff;box-shadow:0 0 24px -6px rgba(94,231,255,.85)}
+
+/* ============================================================
+   9. ABSTRACT
+   ============================================================ */
+.abstract{max-width:900px;margin:0 auto;text-align:center}
+.abstract p{color:#c3cee2;font-size:1.02rem;line-height:1.95;margin:0 0 24px;text-align:justify;text-justify:inter-word}
+.abstract .hl{
+  color:#fff;font-weight:500;
+  text-shadow:0 0 22px rgba(94,231,255,.35);
+}
+.abstract .note{
+  display:inline-block;margin-top:8px;padding:12px 24px;border-radius:14px;
+  border:1px solid rgba(94,231,255,.25);background:rgba(94,231,255,.05);
+  color:#cdf1ff;font-size:.86rem;text-align:center;
+}
+
+.tilt-fig{margin:68px auto 0;max-width:1000px;perspective:1400px}
+.poster-wrapper{max-width:800px;margin:40px auto 0}
+.poster-img{width:100%;border-radius:16px;border:1px solid var(--line);box-shadow:0 40px 100px -50px rgba(94,231,255,.5)}
+.tilt-fig img{
+  width:100%;border-radius:18px;border:1px solid var(--line);
+  box-shadow:0 50px 110px -60px rgba(94,231,255,.55);
+  transition:transform .7s var(--ease), box-shadow .7s ease;
+  transform-style:preserve-3d;will-change:transform;
+}
+.tilt-fig:hover img{box-shadow:0 64px 140px -60px rgba(94,231,255,.85)}
+.ll-sr-fig{max-width:960px}
+.visual-fig{margin-top:80px;max-width:1000px}
+.visual-fig img{width:100%;border-radius:18px;border:1px solid var(--line);box-shadow:0 50px 110px -60px #000}
+
+figcaption{margin-top:16px;text-align:center;font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+
+/* ============================================================
+   10. TABLE
+   ============================================================ */
+.table-shell{
+  margin-top:26px;border-radius:20px;overflow:hidden;
+  border:1px solid var(--line);background:rgba(255,255,255,.018);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:0 50px 110px -70px #000;
+}
+.table-wrap{overflow-x:auto}
+.table-wrap::-webkit-scrollbar{height:8px}
+.table-wrap::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
+.table-wrap::-webkit-scrollbar-thumb{background:rgba(94,231,255,.28);border-radius:8px}
+
+table.performance-table{
+  width:100%;min-width:1000px;border-collapse:collapse;
+  font-size:.8rem;font-variant-numeric:tabular-nums;
+}
+.performance-table thead th{
+  position:sticky;top:0;z-index:2;
+  padding:15px 13px;text-align:center;white-space:nowrap;
+  font-family:var(--font-head);font-weight:600;font-size:.74rem;
+  letter-spacing:.06em;color:#cfd9ec;
+  background:rgba(8,11,19,.97);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.performance-table thead th:first-child{text-align:left}
+.performance-table tbody td{
+  padding:11px 13px;text-align:center;white-space:nowrap;
+  color:#b6c1d7;border-bottom:1px solid rgba(255,255,255,.045);
+}
+.performance-table tbody td:first-child{text-align:left;color:#e4ebf8}
+.performance-table tbody tr{transition:background .35s ease}
+.performance-table tbody tr:hover{background:rgba(94,231,255,.055)}
+
+.section-title{
+  padding:15px 13px !important;text-align:left !important;
+  font-family:var(--font-head);font-size:.68rem !important;
+  letter-spacing:.18em;text-transform:uppercase;color:#dbe6f8 !important;
+  background:linear-gradient(90deg,rgba(94,231,255,.15),rgba(167,139,250,.10) 45%,transparent);
+}
+
+/* Ours 行脉冲 */
+.ours-row{position:relative;overflow:hidden}
+.ours-row::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(94,231,255,.14),rgba(167,139,250,.08) 48%,transparent);
+  opacity:.6;
+  animation:oursPulse 4s ease-in-out infinite;
+}
+@keyframes oursPulse{0%,100%{opacity:.55}50%{opacity:1}}
+.ours-row td{position:relative;color:#dfe8f7 !important;font-weight:500}
+.ours-row td:first-child{color:var(--cyan) !important;font-weight:600;text-shadow:0 0 20px rgba(94,231,255,.6)}
+
+.best{
+  color:var(--gold);font-weight:700;
+  animation:bestGlow 3.4s ease-in-out infinite;
+}
+@keyframes bestGlow{
+  0%,100%{text-shadow:0 0 18px rgba(255,212,121,.5)}
+  50%{text-shadow:0 0 34px rgba(255,212,121,1), 0 0 60px rgba(255,212,121,.4)}
+}
+.second-best{color:var(--cyan);font-weight:600;text-shadow:0 0 20px rgba(94,231,255,.5)}
+
+/* 计数后爆发闪光 */
+.burst{animation:burst .7s var(--ease) !important}
+@keyframes burst{
+  0%{transform:scale(1);filter:brightness(1)}
+  40%{transform:scale(1.12);filter:brightness(1.9)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+
+.perf-note{max-width:940px;margin:0 auto 8px;color:var(--muted);font-size:.8rem;line-height:1.8;text-align:center}
+.perf-caption{
+  font-family:var(--font-head);font-size:.74rem;letter-spacing:.24em;
+  text-transform:uppercase;color:#cbd6ea;margin:0 0 14px;text-align:center;
+}
+
+/* ============================================================
+   11. FOOTER
+   ============================================================ */
+.footer{position:relative;z-index:1;padding:80px clamp(18px,5vw,64px) 60px;text-align:center;border-top:1px solid var(--line)}
+.footer::before{
+  content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  width:220px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  box-shadow:0 0 26px rgba(94,231,255,.85);
+}
+.footer-title{
+  font-family:var(--font-head);font-size:.8rem;letter-spacing:.3em;
+  text-transform:uppercase;color:#cbd6ea;margin:0 0 10px;
+}
+.footer p{color:var(--muted);font-size:.78rem;margin:6px 0}
+.footer-icons{display:flex;justify-content:center;gap:18px;margin:26px 0 0}
+.footer-icons a{
+  width:42px;height:42px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  transition:transform .45s var(--ease), color .4s, border-color .4s, box-shadow .4s;
+}
+.footer-icons a:hover{
+  transform:translateY(-4px);color:var(--cyan);
+  border-color:rgba(94,231,255,.55);box-shadow:0 0 30px -6px rgba(94,231,255,.85);
+}
+
+/* ============================================================
+   12. RESPONSIVE / A11Y
+   ============================================================ */
+@media (max-width:640px){
+  .hero{padding-top:120px}
+  .video-grid,.rotate-grid{grid-template-columns:1fr}
+  .abstract p{text-align:left;font-size:.95rem}
+  .curtain-logo{letter-spacing:.3em}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
   }
-  </script>
-  
-  <!-- Website/Organization Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "INSTITUTION_OR_LAB_NAME",
-    "url": "https://YOUR_INSTITUTION_WEBSITE.com",
-    "logo": "https://YOUR_DOMAIN.com/static/images/favicon.ico",
-    "sameAs": [
-      "https://twitter.com/YOUR_TWITTER_HANDLE",
-      "https://github.com/YOUR_GITHUB_USERNAME"
-    ]
-  }
-  </script>
+  .reveal{opacity:1;transform:none;filter:none}
+  .cursor-glow,.hero-sweep{display:none}
+  .marquee-track{animation:none}
+  .sec-line{transform:scaleX(1)}
+  .hero-title .c{opacity:1;transform:none;filter:none}
+  .hero-eyebrow,.authors,.affiliation,.links,.scroll-hint{opacity:1;transform:none}
+}
+</style>
 </head>
-<body>
 
+<body id="top">
 
-  <!-- Scroll to Top Button -->
-  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
-    <i class="fas fa-chevron-up"></i>
-  </button>
-
-  <!-- More Works Dropdown -->
-  <div class="more-works-container">
-    <button class="more-works-btn" onclick="toggleMoreWorks()" title="View More Works from Our Lab">
-      <i class="fas fa-flask"></i>
-      More Works
-      <i class="fas fa-chevron-down dropdown-arrow"></i>
-    </button>
-    <div class="more-works-dropdown" id="moreWorksDropdown">
-      <div class="dropdown-header">
-        <h4>More Works from Our Lab</h4>
-        <button class="close-btn" onclick="toggleMoreWorks()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="works-list">
-        <!-- TODO: Replace with your lab's related works -->
-        <a href="https://arxiv.org/abs/PAPER_ID_1" class="work-item" target="_blank">
-          <div class="work-info">
-            <!-- TODO: Replace with actual paper title -->
-            <h5>Paper Title 1</h5>
-            <!-- TODO: Replace with brief description -->
-            <p>Brief description of the work and its main contribution.</p>
-            <!-- TODO: Replace with venue and year -->
-            <span class="work-venue">Conference/Journal 2024</span>
-          </div>
-          <i class="fas fa-external-link-alt"></i>
-        </a>
-        <!-- TODO: Add more related works or remove extra items -->
-        <a href="https://arxiv.org/abs/PAPER_ID_2" class="work-item" target="_blank">
-          <div class="work-info">
-            <h5>Paper Title 2</h5>
-            <p>Brief description of the work and its main contribution.</p>
-            <span class="work-venue">Conference/Journal 2023</span>
-          </div>
-          <i class="fas fa-external-link-alt"></i>
-        </a>
-        <a href="https://arxiv.org/abs/PAPER_ID_3" class="work-item" target="_blank">
-          <div class="work-info">
-            <h5>Paper Title 3</h5>
-            <p>Brief description of the work and its main contribution.</p>
-            <span class="work-venue">Conference/Journal 2023</span>
-          </div>
-          <i class="fas fa-external-link-alt"></i>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <main id="main-content">
-  <section class="hero">
-    <div class="hero-body">
-      <div class="container is-max-desktop">
-        <div class="columns is-centered">
-          <div class="column has-text-centered">
-            <!-- TODO: Replace with your paper title -->
-            <h1 class="title is-1 publication-title">Academic Project Page</h1>
-            <div class="is-size-5 publication-authors">
-              <!-- TODO: Replace with your paper authors and their personal links -->
-              <span class="author-block">
-                <a href="FIRST AUTHOR PERSONAL LINK" target="_blank">First Author</a><sup>*</sup>,</span>
-                <span class="author-block">
-                  <a href="SECOND AUTHOR PERSONAL LINK" target="_blank">Second Author</a><sup>*</sup>,</span>
-                  <span class="author-block">
-                    <a href="THIRD AUTHOR PERSONAL LINK" target="_blank">Third Author</a>
-                  </span>
-                  </div>
-
-                  <div class="is-size-5 publication-authors">
-                    <!-- TODO: Replace with your institution and conference/journal info -->
-                    <span class="author-block">Institution Name<br>Conference name and year</span>
-                    <!-- TODO: Remove this line if no equal contribution -->
-                    <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution</small></span>
-                  </div>
-
-                  <div class="column has-text-centered">
-                    <div class="publication-links">
-                         <!-- TODO: Update with your arXiv paper ID -->
-                      <span class="link-block">
-                        <a href="https://arxiv.org/pdf/<ARXIV PAPER ID>.pdf" target="_blank"
-                        class="external-link button is-normal is-rounded is-dark">
-                        <span class="icon">
-                          <i class="fas fa-file-pdf"></i>
-                        </span>
-                        <span>Paper</span>
-                      </a>
-                    </span>
-
-                    <!-- TODO: Add your supplementary material PDF or remove this section -->
-                    <span class="link-block">
-                      <a href="static/pdfs/supplementary_material.pdf" target="_blank"
-                      class="external-link button is-normal is-rounded is-dark">
-                      <span class="icon">
-                        <i class="fas fa-file-pdf"></i>
-                      </span>
-                      <span>Supplementary</span>
-                    </a>
-                  </span>
-
-                  <!-- TODO: Replace with your GitHub repository URL -->
-                  <span class="link-block">
-                    <a href="https://github.com/YOUR REPO HERE" target="_blank"
-                    class="external-link button is-normal is-rounded is-dark">
-                    <span class="icon">
-                      <i class="fab fa-github"></i>
-                    </span>
-                    <span>Code</span>
-                  </a>
-                </span>
-
-                <!-- TODO: Update with your arXiv paper ID -->
-                <span class="link-block">
-                  <a href="https://arxiv.org/abs/<ARXIV PAPER ID>" target="_blank"
-                  class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                    <i class="ai ai-arxiv"></i>
-                  </span>
-                  <span>arXiv</span>
-                </a>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- Teaser video-->
-<section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <!-- TODO: Replace with your teaser video -->
-      <video poster="" id="tree" autoplay controls muted loop height="100%" preload="metadata">
-        <!-- TODO: Add your video file path here -->
-        <source src="static/videos/banner_video.mp4" type="video/mp4">
-      </video>
-      <!-- TODO: Replace with your video description -->
-      <h2 class="subtitle has-text-centered">
-        Aliquam vitae elit ullamcorper tellus egestas pellentesque. Ut lacus tellus, maximus vel lectus at, placerat pretium mi. Maecenas dignissim tincidunt vestibulum. Sed consequat hendrerit nisl ut maximus. 
-      </h2>
-    </div>
-  </div>
-</section>
-<!-- End teaser video -->
-
-<!-- Paper abstract -->
-<section class="section hero is-light">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <!-- TODO: Replace with your paper abstract -->
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper tellus sed ante aliquam tempus. Etiam porttitor urna feugiat nibh elementum, et tempor dolor mattis. Donec accumsan enim augue, a vulputate nisi sodales sit amet. Proin bibendum ex eget mauris cursus euismod nec et nibh. Maecenas ac gravida ante, nec cursus dui. Vivamus purus nibh, placerat ac purus eget, sagittis vestibulum metus. Sed vestibulum bibendum lectus gravida commodo. Pellentesque auctor leo vitae sagittis suscipit.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- End paper abstract -->
-
-
-<!-- Image carousel -->
-<section class="hero is-small">
-  <div class="hero-body">
-    <div class="container">
-      <div id="results-carousel" class="carousel results-carousel">
-       <div class="item">
-        <!-- TODO: Replace with your research result images -->
-        <img src="static/images/carousel1.jpg" alt="First research result visualization" loading="lazy"/>
-        <!-- TODO: Replace with description of this result -->
-        <h2 class="subtitle has-text-centered">
-          First image description.
-        </h2>
-      </div>
-      <div class="item">
-        <!-- Your image here -->
-        <img src="static/images/carousel2.jpg" alt="Second research result visualization" loading="lazy"/>
-        <h2 class="subtitle has-text-centered">
-          Second image description.
-        </h2>
-      </div>
-      <div class="item">
-        <!-- Your image here -->
-        <img src="static/images/carousel3.jpg" alt="Third research result visualization" loading="lazy"/>
-        <h2 class="subtitle has-text-centered">
-         Third image description.
-       </h2>
-     </div>
-     <div class="item">
-      <!-- Your image here -->
-      <img src="static/images/carousel4.jpg" alt="Fourth research result visualization" loading="lazy"/>
-      <h2 class="subtitle has-text-centered">
-        Fourth image description.
-      </h2>
-    </div>
+<!-- ============ 序幕遮罩 ============ -->
+<div class="curtain" id="curtain" aria-hidden="true">
+  <div class="curtain-inner">
+    <span class="curtain-logo">VSRELL</span>
+    <span class="curtain-line"></span>
+    <span class="curtain-sub">CVPR 2026 · Denver</span>
   </div>
 </div>
+
+<!-- ============ 氛围层 ============ -->
+<div id="particles" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <a class="nav-brand" href="#top"><span class="brand-dot"></span>VSRELL</a>
+  <nav class="nav-links">
+    <a href="#demos">Demos</a>
+    <a href="#abstract">Abstract</a>
+    <a href="#compare">Comparison</a>
+    <a class="nav-cta" href="https://github.com/373hdj/VSRELL" target="_blank" rel="noopener">Code</a>
+  </nav>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="hero-sweep" aria-hidden="true"></div>
+  <div class="hero-inner" id="heroInner">
+    <p class="hero-eyebrow" style="font-size:1.3rem;font-weight:600;color:var(--cyan)">CVPR 2026 · Denver</p>
+
+    <h1 class="hero-title" id="heroTitle">VSRELL++: Improving Video Super-Resolution and Enhancement in Low-Light Environment with Self-Distillation Consistency</h1>
+
+    <div class="authors">
+      <a href="#">Yanming Hui</a><a href="#">Fanhua Shang</a><a href="#">Hongying Liu</a>
+      <a href="#">Ben Wang</a><a href="#">Zhenwei Zhang</a><a href="#">Liang Wan</a>
+      <a href="#">Wei Feng</a><a href="#">Tong Xue</a><a href="#">Bingqin Lv</a>
+    </div>
+    <div class="affiliation">Tianjin University</div>
+
+    <div class="links">
+      <a class="btn" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+        <span>arXiv</span>
+      </a>
+      <a class="btn" href="https://github.com/373hdj/VSRELL" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>Code</span>
+      </a>
+      <a class="btn" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Data</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-hint"><span>Scroll</span><i></i></div>
+</section>
+
+<!-- ================= POSTER ================= -->
+<section class="section" id="poster">
+  <div class="container-wide">
+    <div class="sec-head reveal">
+      <span class="sec-num">00 / Poster</span>
+      <h2 class="sec-title">Conference Poster</h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="poster-wrapper reveal">
+      <img src="./static/images/poster.png" alt="Conference Poster" class="poster-img">
+    </div>
+  </div>
+</section>
+
+<!-- ================= MARQUEE ================= -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span class="marquee-item">Low-Light <em>·</em> Super-Resolution <em>·</em> Temporal Consistency</span>
+    <span class="marquee-item">Illumination-Enhancement <em>·</em> Motion-Compensation <em>·</em> Noise-Suppression</span>
+    <span class="marquee-item">Low-Light <em>·</em> Super-Resolution <em>·</em> Temporal Consistency</span>
+    <span class="marquee-item">Illumination-Enhancement <em>·</em> Motion-Compensation <em>·</em> Noise-Suppression</span>
+  </div>
 </div>
-</section>
-<!-- End image carousel -->
 
+<!-- ================= DEMOS ================= -->
+<section class="section" id="demos">
+  <div class="container-wide">
 
+    <div class="sec-head reveal">
+      <span class="sec-num">01 / Demos</span>
+      <h2 class="sec-title">Video Demonstrations</h2>
+      <p class="sec-sub">Restoration results across illumination and resolution levels, compared against the ground truth.</p>
+      <div class="sec-line"></div>
+    </div>
 
+    <div class="video-grid cols-4" data-stagger>
+      <figure class="video-card reveal">
+        <video controls preload="metadata" playsinline><source src="./static/video/x2lq_output_video_h264.mp4" type="video/mp4"></video>
+        <figcaption class="video-cap"><span class="video-label">x2 LQ</span><span class="video-res">Resolution: --</span></figcaption>
+      </figure>
+      <figure class="video-card reveal">
+        <video controls preload="metadata" playsinline><source src="./static/video/x4_output_video_h264.mp4" type="video/mp4"></video>
+        <figcaption class="video-cap"><span class="video-label">VSRELL</span><span class="video-res">Resolution: --</span></figcaption>
+      </figure>
+      <figure class="video-card is-gt reveal">
+        <video controls preload="metadata" playsinline><source src="./static/video/VSRELL_video_h264.mp4" type="video/mp4"></video>
+        <figcaption class="video-cap"><span class="video-label">VSRELL++</span><span class="video-res">Resolution: --</span></figcaption>
+      </figure>
+      <figure class="video-card is-gt reveal">
+        <video controls preload="metadata" playsinline><source src="./static/video/GT_output_video_h264.mp4" type="video/mp4"></video>
+        <figcaption class="video-cap"><span class="video-label">Ground Truth</span><span class="video-res">Resolution: --</span></figcaption>
+      </figure>
+    </div>
 
-<!-- Youtube video -->
-<section class="hero is-small is-light">
-  <div class="hero-body">
-    <div class="container">
-      <!-- Paper video. -->
-      <h2 class="title is-3">Video Presentation</h2>
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          
-          <div class="publication-video">
-            <!-- TODO: Replace with your YouTube video ID -->
-            <iframe src="https://www.youtube.com/embed/JkaxUblCGz0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          </div>
+    <div class="video-grid cols-4" data-stagger style="margin-top:22px">
+      <figure class="video-card reveal">
+        <video controls preload="metadata" playsinline><source src="./static/video/x4lq_output_video_h264.mp4" type="video/mp4"></video>
+        <figcaption class="video-cap"><span class="video-label">x4 LQ</span><span class="video-res">Resolution: --</span></figcaption>
+      </figure>
+      <figure class="video-card reveal">
+        <video controls preload="metadata" playsinline><source src="./static/video/x4_output_video_h264.mp4" type="video/mp4"></video>
+        <figcaption class="video-cap"><span class="video-label">VSRELL</span><span class="video-res">Resolution: --</span></figcaption>
+      </figure>
+      <figure class="video-card is-gt reveal">
+        <video controls preload="metadata" playsinline><source src="./static/video/VSRELL_video_h264.mp4" type="video/mp4"></video>
+        <figcaption class="video-cap"><span class="video-label">VSRELL++</span><span class="video-res">Resolution: --</span></figcaption>
+      </figure>
+      <figure class="video-card is-gt reveal">
+        <video controls preload="metadata" playsinline><source src="./static/video/GT_output_video_h264.mp4" type="video/mp4"></video>
+        <figcaption class="video-cap"><span class="video-label">Ground Truth</span><span class="video-res">Resolution: --</span></figcaption>
+      </figure>
+    </div>
+
+    <p class="hint reveal"><span>Drag horizontally to rotate the split line</span></p>
+
+    <div class="rotate-grid" data-stagger>
+      <div class="rotate-compare reveal"
+           data-img-a="./static/images/00000000.png"
+           data-img-b="./static/images/00000000_MAX_4.png"
+           data-angle="28">
+        <div class="rotate-stage">
+          <div class="rotate-layer rotate-layer-a"><img class="rotate-img rotate-img-a" alt="Base"></div>
+          <div class="rotate-layer rotate-layer-b"><img class="rotate-img rotate-img-b" alt="Super-resolved"></div>
+          <div class="rotate-shade"></div>
+          <svg class="rotate-line" aria-hidden="true">
+            <line class="rotate-line-segment" x1="0" y1="0" x2="0" y2="0"></line>
+            <circle class="rotate-line-outer" cx="0" cy="0" r="11"></circle>
+            <circle class="rotate-line-inner" cx="0" cy="0" r="3.5"></circle>
+          </svg>
+          <div class="rotate-badge rotate-badge-left">Base</div>
+          <div class="rotate-badge rotate-badge-right">SR</div>
+        </div>
+      </div>
+
+      <div class="rotate-compare reveal"
+           data-img-a="./static/images/00000099.png"
+           data-img-b="./static/images/00000099_MAX_4.png"
+           data-angle="28">
+        <div class="rotate-stage">
+          <div class="rotate-layer rotate-layer-a"><img class="rotate-img rotate-img-a" alt="Base"></div>
+          <div class="rotate-layer rotate-layer-b"><img class="rotate-img rotate-img-b" alt="Super-resolved"></div>
+          <div class="rotate-shade"></div>
+          <svg class="rotate-line" aria-hidden="true">
+            <line class="rotate-line-segment" x1="0" y1="0" x2="0" y2="0"></line>
+            <circle class="rotate-line-outer" cx="0" cy="0" r="11"></circle>
+            <circle class="rotate-line-inner" cx="0" cy="0" r="3.5"></circle>
+          </svg>
+          <div class="rotate-badge rotate-badge-left">Base</div>
+          <div class="rotate-badge rotate-badge-right">SR</div>
+        </div>
+      </div>
+
+      <div class="rotate-compare reveal"
+           data-img-a="./static/images/00000000.png"
+           data-img-b="./static/images/00000000_MAX_4.png"
+           data-angle="28">
+        <div class="rotate-stage">
+          <div class="rotate-layer rotate-layer-a"><img class="rotate-img rotate-img-a" alt="Base"></div>
+          <div class="rotate-layer rotate-layer-b"><img class="rotate-img rotate-img-b" alt="Super-resolved"></div>
+          <div class="rotate-shade"></div>
+          <svg class="rotate-line" aria-hidden="true">
+            <line class="rotate-line-segment" x1="0" y1="0" x2="0" y2="0"></line>
+            <circle class="rotate-line-outer" cx="0" cy="0" r="11"></circle>
+            <circle class="rotate-line-inner" cx="0" cy="0" r="3.5"></circle>
+          </svg>
+          <div class="rotate-badge rotate-badge-left">Base</div>
+          <div class="rotate-badge rotate-badge-right">SR</div>
+        </div>
+      </div>
+
+      <div class="rotate-compare reveal"
+           data-img-a="./static/images/00000000.png"
+           data-img-b="./static/images/00000000_MAX_4.png"
+           data-angle="28">
+        <div class="rotate-stage">
+          <div class="rotate-layer rotate-layer-a"><img class="rotate-img rotate-img-a" alt="Base"></div>
+          <div class="rotate-layer rotate-layer-b"><img class="rotate-img rotate-img-b" alt="Super-resolved"></div>
+          <div class="rotate-shade"></div>
+          <svg class="rotate-line" aria-hidden="true">
+            <line class="rotate-line-segment" x1="0" y1="0" x2="0" y2="0"></line>
+            <circle class="rotate-line-outer" cx="0" cy="0" r="11"></circle>
+            <circle class="rotate-line-inner" cx="0" cy="0" r="3.5"></circle>
+          </svg>
+          <div class="rotate-badge rotate-badge-left">Base</div>
+          <div class="rotate-badge rotate-badge-right">SR</div>
+        </div>
+      </div>
+
+      <div class="rotate-compare reveal"
+           data-img-a="./static/images/00000050.png"
+           data-img-b="./static/images/00000050_MAX_4.png"
+           data-angle="28">
+        <div class="rotate-stage">
+          <div class="rotate-layer rotate-layer-a"><img class="rotate-img rotate-img-a" alt="Base"></div>
+          <div class="rotate-layer rotate-layer-b"><img class="rotate-img rotate-img-b" alt="Super-resolved"></div>
+          <div class="rotate-shade"></div>
+          <svg class="rotate-line" aria-hidden="true">
+            <line class="rotate-line-segment" x1="0" y1="0" x2="0" y2="0"></line>
+            <circle class="rotate-line-outer" cx="0" cy="0" r="11"></circle>
+            <circle class="rotate-line-inner" cx="0" cy="0" r="3.5"></circle>
+          </svg>
+          <div class="rotate-badge rotate-badge-left">Base</div>
+          <div class="rotate-badge rotate-badge-right">SR</div>
+        </div>
+      </div>
+
+      <div class="rotate-compare reveal"
+           data-img-a="./static/images/00000000.png"
+           data-img-b="./static/images/00000000_MAX_4.png"
+           data-angle="28">
+        <div class="rotate-stage">
+          <div class="rotate-layer rotate-layer-a"><img class="rotate-img rotate-img-a" alt="Base"></div>
+          <div class="rotate-layer rotate-layer-b"><img class="rotate-img rotate-img-b" alt="Super-resolved"></div>
+          <div class="rotate-shade"></div>
+          <svg class="rotate-line" aria-hidden="true">
+            <line class="rotate-line-segment" x1="0" y1="0" x2="0" y2="0"></line>
+            <circle class="rotate-line-outer" cx="0" cy="0" r="11"></circle>
+            <circle class="rotate-line-inner" cx="0" cy="0" r="3.5"></circle>
+          </svg>
+          <div class="rotate-badge rotate-badge-left">Base</div>
+          <div class="rotate-badge rotate-badge-right">SR</div>
         </div>
       </div>
     </div>
+
   </div>
 </section>
-<!-- End youtube video -->
 
-
-<!-- Video carousel -->
-<section class="hero is-small">
-  <div class="hero-body">
-    <div class="container">
-      <h2 class="title is-3">Another Carousel</h2>
-      <div id="results-carousel" class="carousel results-carousel">
-        <div class="item item-video1">
-          <!-- TODO: Add poster image for better preview -->
-          <video poster="" id="video1" controls muted loop height="100%" preload="metadata">
-            <!-- Your video file here -->
-            <source src="static/videos/carousel1.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-video2">
-          <!-- TODO: Add poster image for better preview -->
-          <video poster="" id="video2" controls muted loop height="100%" preload="metadata">
-            <!-- Your video file here -->
-            <source src="static/videos/carousel2.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-video3">
-          <!-- TODO: Add poster image for better preview -->
-          <video poster="" id="video3" controls muted loop height="100%" preload="metadata">
-            <!-- Your video file here -->
-            <source src="static/videos/carousel3.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- End video carousel -->
-
-
-
-
-
-
-<!-- Paper poster -->
-<section class="hero is-small is-light">
-  <div class="hero-body">
-    <div class="container">
-      <h2 class="title">Poster</h2>
-
-      <!-- TODO: Replace with your poster PDF -->
-      <iframe  src="static/pdfs/sample.pdf" width="100%" height="550">
-          </iframe>
-        
-      </div>
-    </div>
-  </section>
-<!--End paper poster -->
-
-
-
-<!--BibTex citation -->
-  <section class="section" id="BibTeX">
-    <div class="container is-max-desktop content">
-      <div class="bibtex-header">
-        <h2 class="title">BibTeX</h2>
-        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
-          <i class="fas fa-copy"></i>
-          <span class="copy-text">Copy</span>
-        </button>
-      </div>
-      <pre id="bibtex-code"><code>@article{YourPaperKey2024,
-  title={Your Paper Title Here},
-  author={First Author and Second Author and Third Author},
-  journal={Conference/Journal Name},
-  year={2024},
-  url={https://your-domain.com/your-project-page}
-}</code></pre>
-    </div>
-</section>
-<!--End BibTex citation -->
-
-
-  <footer class="footer">
+<!-- ================= ABSTRACT ================= -->
+<section class="section" id="abstract">
   <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-
-          <p>
-            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
-            You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-
-        </div>
-      </div>
+    <div class="sec-head reveal">
+      <span class="sec-num">02 / Abstract</span>
+      <h2 class="sec-title">Abstract</h2>
+      <div class="sec-line"></div>
     </div>
+
+    <div class="abstract reveal">
+      <p>
+        We propose an improving framework for Video Super-Resolution and Enhancement in Low-Light Environment (VSRELL++)
+        that recovers normal light high-resolution sequences from low-light low-resolution inputs. Due to the complex
+        coupling of multiple degradations, this joint task has received relatively little attention. Our method jointly
+        models illumination enhancement and spatial-temporal super-resolution to disentangle intertwined degradations.
+      </p>
+      <p>
+        Specifically, we introduce an illumination-noise co-optimization module that employs dynamic window partitioning
+        to explicitly model physical priors of illumination variations and noise distributions, effectively suppressing
+        cross-frame noise accumulation and illumination flickering. Moreover, an illumination-sensitive feature
+        propagation mechanism utilizes hierarchical illumination-sensing gating to adaptively modulate feature propagation,
+        enhancing high-quality features while suppressing error accumulation in low-light regions.
+      </p>
+      <p>
+        Finally, a self-distillation consistency training strategy enforces brightness continuity through multi-level
+        illumination augmentation and student--teacher distillation, ensuring temporal consistency across video sequences.
+        Extensive experiments demonstrate that VSRELL++ significantly outperforms state-of-the-art methods in both
+        quantitative metrics and visual quality.
+      </p>
+    </div>
+
+    <figure class="tilt-fig reveal">
+      <img src="./static/images/Architecture Overview.png" alt="Architecture Overview">
+      <figcaption>Architecture Overview</figcaption>
+    </figure>
   </div>
+</section>
+
+<!-- ================= COMPARISON ================= -->
+<section class="section" id="compare">
+  <div class="container-wide">
+    <div class="sec-head reveal">
+      <span class="sec-num">03 / Comparison</span>
+      <h2 class="sec-title">Comparison</h2>
+      <p class="sec-sub">Performance comparison of different methods including cascading and All-in-One on REDS4.</p>
+      <div class="sec-line"></div>
+    </div>
+
+    <figure class="tilt-fig ll-sr-fig reveal">
+      <img src="./static/images/LL_SR.png" alt="Performance Gain">
+      <figcaption>Performance Gain</figcaption>
+    </figure>
+
+    <figure class="tilt-fig reveal" style="margin-top:72px">
+      <img src="./static/images/data.png" alt="Performance Comparison">
+      <figcaption>Performance Comparison</figcaption>
+    </figure>
+
+    <figure class="tilt-fig reveal" style="margin-top:72px">
+      <img src="./static/images/dataset_pro.png" alt="Dataset Construction Process">
+      <figcaption>Dataset Construction Process</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <p class="footer-title">VSRELL</p>
+  <p>Video Super-Resolution &amp; Enhancement in Low-Light Environments</p>
+  <p>Tianjin University · CVPR 2026</p>
+  <div class="footer-icons">
+    <a href="./static/paper.pdf" aria-label="Paper PDF">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+    </a>
+    <a href="https://github.com/373hdj/VSRELL" target="_blank" rel="noopener" aria-label="GitHub">
+      <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+    </a>
+  </div>
+  <p style="margin-top:26px;font-size:.72rem;letter-spacing:.1em">This website is borrowed from Nerfies</p>
 </footer>
 
-<!-- Statcounter tracking code -->
-  
-<!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+<script>
+(function () {
+  'use strict';
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    <!-- End of Statcounter Code -->
+  /* ---------------------------------------------------------
+     1. 序幕遮罩 —— 页面加载后揭幕
+     --------------------------------------------------------- */
+  const curtain = document.getElementById('curtain');
+  function reveal(){
+    document.body.classList.add('revealed');
+    if (curtain) curtain.classList.add('gone');
+  }
+  if (document.readyState === 'complete') {
+    setTimeout(reveal, 1550);
+  } else {
+    window.addEventListener('load', function(){ setTimeout(reveal, 1550); });
+    // 兜底：即便图片/视频加载缓慢，也不会让序幕超过 3.2 秒
+    setTimeout(reveal, 3200);
+  }
 
-  </body>
-  </html>
+  /* ---------------------------------------------------------
+     2. 标题逐字拆分
+     --------------------------------------------------------- */
+  const heroTitle = document.getElementById('heroTitle');
+  if (heroTitle) {
+    const raw = heroTitle.textContent.trim();
+    let html = '';
+    let i = 0;
+    for (let k = 0; k < raw.length; k++) {
+      const ch = raw[k];
+      if (ch === ' ') {
+        html += '<span class="sp"></span>';
+      } else {
+        html += '<span class="c" style="--i:' + i + '">' + ch + '</span>';
+        i++;
+      }
+    }
+    heroTitle.innerHTML = html;
+  }
+
+  /* ---------------------------------------------------------
+     3. 粒子星场
+     --------------------------------------------------------- */
+  const particles = document.getElementById('particles');
+  if (particles && !reduce) {
+    const N = window.innerWidth < 720 ? 18 : 34;
+    for (let k = 0; k < N; k++) {
+      const p = document.createElement('i');
+      const size = 1 + Math.random() * 2.2;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = (Math.random() * 100) + '%';
+      p.style.top = (100 + Math.random() * 20) + '%';
+      p.style.opacity = (0.25 + Math.random() * 0.45).toFixed(2);
+      p.style.animationDelay = (Math.random() * 14) + 's';
+      p.style.animationDuration = (12 + Math.random() * 16) + 's';
+      particles.appendChild(p);
+    }
+  }
+
+  /* ---------------------------------------------------------
+     4. 滚动进度 + 导航状态 + 英雄视差
+     --------------------------------------------------------- */
+  const nav = document.getElementById('nav');
+  const bar = document.getElementById('progressBar');
+  const heroInner = document.getElementById('heroInner');
+  const hero = document.querySelector('.hero');
+
+  let mouseNX = 0, mouseNY = 0;
+  let heroScheduled = false;
+
+  function renderHero() {
+    if (!heroInner || !hero || reduce) return;
+    const y = window.scrollY;
+    const h = hero.offsetHeight;
+    if (y < h) {
+      const tx = mouseNX * 14;
+      const ty = y * 0.22 + mouseNY * 14;
+      heroInner.style.transform = 'translate3d(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px,0)';
+      heroInner.style.opacity = Math.max(0, 1 - y / (h * 0.82));
+    }
+    heroScheduled = false;
+  }
+  function queueHero() {
+    if (!heroScheduled) { heroScheduled = true; requestAnimationFrame(renderHero); }
+  }
+
+  if (hero && fine && !reduce) {
+    hero.addEventListener('pointermove', function (e) {
+      mouseNX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseNY = (e.clientY / window.innerHeight - 0.5) * 2;
+      queueHero();
+    }, { passive: true });
+  }
+
+  let ticking = false;
+  function onScroll() {
+    const y = window.scrollY || 0;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    if (bar) bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(y / max, 1) : 0) + ')';
+    if (nav) nav.classList.toggle('scrolled', y > 40);
+    queueHero();
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+  }, { passive: true });
+  onScroll();
+
+  /* ---------------------------------------------------------
+     5. 光标光晕（带缓动）
+     --------------------------------------------------------- */
+  const glow = document.getElementById('cursorGlow');
+  if (fine && glow && !reduce) {
+    let tx = window.innerWidth / 2, ty = window.innerHeight / 2;
+    let cx = tx, cy = ty, running = false;
+    function loop() {
+      cx += (tx - cx) * 0.12;
+      cy += (ty - cy) * 0.12;
+      glow.style.transform = 'translate3d(' + cx.toFixed(2) + 'px,' + cy.toFixed(2) + 'px,0)';
+      if (Math.abs(tx - cx) > 0.4 || Math.abs(ty - cy) > 0.4) requestAnimationFrame(loop);
+      else running = false;
+    }
+    window.addEventListener('pointermove', function (e) {
+      tx = e.clientX; ty = e.clientY;
+      glow.style.opacity = '1';
+      if (!running) { running = true; requestAnimationFrame(loop); }
+    }, { passive: true });
+    window.addEventListener('pointerleave', function () { glow.style.opacity = '0'; });
+  }
+
+  /* ---------------------------------------------------------
+     6. Reveal 与错峰延迟
+     --------------------------------------------------------- */
+  document.querySelectorAll('[data-stagger]').forEach(function (group) {
+    Array.prototype.forEach.call(group.children, function (child, i) {
+      if (child.classList.contains('reveal')) {
+        child.style.transitionDelay = (i % 8) * 75 + 'ms';
+      }
+    });
+  });
+
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+
+  /* ---------------------------------------------------------
+     7. 视频卡片聚光
+     --------------------------------------------------------- */
+  document.querySelectorAll('.video-card').forEach(function (card) {
+    card.addEventListener('pointermove', function (e) {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    }, { passive: true });
+  });
+
+  /* ---------------------------------------------------------
+     8. 旋转分割对比
+     --------------------------------------------------------- */
+  function setupRotate(el) {
+    const layerB = el.querySelector('.rotate-layer-b');
+    const imgA = el.querySelector('.rotate-img-a');
+    const imgB = el.querySelector('.rotate-img-b');
+    const line = el.querySelector('.rotate-line-segment');
+    const outer = el.querySelector('.rotate-line-outer');
+    const inner = el.querySelector('.rotate-line-inner');
+    if (!layerB || !imgA || !imgB) return;
+
+    imgA.src = el.dataset.imgA;
+    imgB.src = el.dataset.imgB;
+
+    const a = (parseFloat(el.dataset.angle) || 28) * Math.PI / 180;
+    const dx = Math.sin(a), dy = -Math.cos(a);
+    const nx = -dy, ny = dx;
+
+    let target = 0.5, cur = 0.5, raf = null, started = false;
+
+    function apply() {
+      const r = el.getBoundingClientRect();
+      const w = r.width, h = r.height;
+      if (!w || !h) return;
+      const mx = cur * w, my = h / 2;
+
+      const corners = [[0, 0], [w, 0], [w, h], [0, h]];
+      const pts = [];
+      for (let i = 0; i < 4; i++) {
+        const p = corners[i], q = corners[(i + 1) % 4];
+        const dp = (p[0] - mx) * nx + (p[1] - my) * ny;
+        const dq = (q[0] - mx) * nx + (q[1] - my) * ny;
+        if (dp >= 0) pts.push(p);
+        if ((dp >= 0) !== (dq >= 0)) {
+          const t = dp / (dp - dq);
+          pts.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]);
+        }
+      }
+      layerB.style.clipPath = pts.length >= 3
+        ? 'polygon(' + pts.map(function (p) { return p[0].toFixed(2) + 'px ' + p[1].toFixed(2) + 'px'; }).join(',') + ')'
+        : 'none';
+
+      const L = w + h;
+      line.setAttribute('x1', mx - dx * L); line.setAttribute('y1', my - dy * L);
+      line.setAttribute('x2', mx + dx * L); line.setAttribute('y2', my + dy * L);
+      outer.setAttribute('cx', mx); outer.setAttribute('cy', my);
+      inner.setAttribute('cx', mx); inner.setAttribute('cy', my);
+    }
+
+    function tick() {
+      cur += (target - cur) * 0.16;
+      if (Math.abs(target - cur) < 0.0008) { cur = target; apply(); raf = null; return; }
+      apply();
+      raf = requestAnimationFrame(tick);
+    }
+    function kick() { if (raf === null) raf = requestAnimationFrame(tick); }
+
+    el.addEventListener('pointermove', function (e) {
+      if (!started) { cur = target; started = true; }
+      const r = el.getBoundingClientRect();
+      const p = (e.clientX - r.left) / r.width;
+      target = Math.min(0.97, Math.max(0.03, p));
+      kick();
+    }, { passive: true });
+
+    el.addEventListener('pointerdown', function (e) {
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+
+    if (window.ResizeObserver) new ResizeObserver(function () { apply(); }).observe(el);
+    else window.addEventListener('resize', apply);
+    window.addEventListener('load', apply);
+    apply();
+    requestAnimationFrame(apply);
+
+    const io2 = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          started = true; cur = 0.18; target = 0.5; kick(); io2.unobserve(el);
+        }
+      });
+    }, { threshold: 0.35 });
+    io2.observe(el);
+  }
+  document.querySelectorAll('.rotate-compare').forEach(setupRotate);
+
+  /* ---------------------------------------------------------
+     9. 视频互斥播放
+     --------------------------------------------------------- */
+  const videos = Array.prototype.slice.call(document.querySelectorAll('video'));
+  videos.forEach(function (v) {
+    v.addEventListener('play', function () {
+      videos.forEach(function (o) { if (o !== v && !o.paused) o.pause(); });
+    });
+  });
+
+  /* ---------------------------------------------------------
+     10. 导航当前章节高亮
+     --------------------------------------------------------- */
+  const navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a[href^="#"]'));
+  const sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  if (sections.length && navLinks.length) {
+    const sIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navLinks.forEach(function (l) {
+            l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { threshold: 0, rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(function (s) { sIO.observe(s); });
+  }
+
+  /* ---------------------------------------------------------
+     11. 3D 倾斜图表
+     --------------------------------------------------------- */
+  if (fine && !reduce) {
+    document.querySelectorAll('.tilt-fig').forEach(function (fig) {
+      const img = fig.querySelector('img');
+      if (!img) return;
+      fig.addEventListener('pointermove', function (e) {
+        const r = fig.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        img.style.transition = 'transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease';
+        img.style.transform =
+          'perspective(1200px) rotateY(' + (x * 9).toFixed(2) + 'deg)' +
+          ' rotateX(' + (-y * 9).toFixed(2) + 'deg) scale(1.015)';
+      });
+      fig.addEventListener('pointerleave', function () {
+        img.style.transition = 'transform .8s cubic-bezier(.16,1,.3,1), box-shadow .8s ease';
+        img.style.transform = '';
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------
+     12. 表格数字计数 + 爆发闪光
+     --------------------------------------------------------- */
+  const tableEl = document.querySelector('.performance-table');
+  if (tableEl && !reduce) {
+    const targets = [];
+    tableEl.querySelectorAll('.best, .second-best').forEach(function (el) {
+      const txt = el.textContent.trim();
+      const num = parseFloat(txt);
+      if (isNaN(num)) return;
+      const dec = (txt.split('.')[1] || '').length;
+      targets.push({ el: el, num: num, dec: dec, orig: txt });
+    });
+
+    if (targets.length) {
+      targets.forEach(function (t) { t.el.textContent = (0).toFixed(t.dec); });
+
+      let counted = false;
+      function runCount() {
+        if (counted) return;
+        counted = true;
+        targets.forEach(function (t, i) {
+          setTimeout(function () {
+            const startT = performance.now();
+            const dur = 1100;
+            const ease = function (p) { return 1 - Math.pow(1 - p, 4); };
+            function tickCount(now) {
+              const p = Math.min((now - startT) / dur, 1);
+              t.el.textContent = (t.num * ease(p)).toFixed(t.dec);
+              if (p < 1) requestAnimationFrame(tickCount);
+              else {
+                t.el.textContent = t.orig;
+                t.el.classList.add('burst');
+                setTimeout(function(){ t.el.classList.remove('burst'); }, 720);
+              }
+            }
+            requestAnimationFrame(tickCount);
+          }, i * 34);
+        });
+      }
+
+      const tIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { runCount(); tIO.disconnect(); }
+        });
+      }, { threshold: 0.12 });
+      tIO.observe(tableEl);
+    }
+  }
+
+  /* ---------------------------------------------------------
+     13. 平滑锚点滚动
+     --------------------------------------------------------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      const id = link.getAttribute('href');
+      if (id.length < 2) return;
+      const targetEl = document.querySelector(id);
+      if (!targetEl) return;
+      e.preventDefault();
+      const top = targetEl.getBoundingClientRect().top + window.scrollY - 70;
+      window.scrollTo({ top: top, behavior: reduce ? 'auto' : 'smooth' });
+    });
+  });
+})();
+</script>
+</body>
+</html>
